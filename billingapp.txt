@@ -1,0 +1,26 @@
+Login
+  |
+1.Admin
+2.Employee
+
+
+Admin Login
+   |
+1.Add Product
+2.remove product
+3.exit
+
+Employee login
+  |
+1. bill product
+2.List bill
+3.exit
+
+
+bill product
+   |
+enter cust mobile no.
+1.enter product key(with key and quantity amount must be totaled)
+2.add product
+3.Generate bill
+

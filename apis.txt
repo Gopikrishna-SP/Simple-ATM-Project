@@ -1,0 +1,264 @@
+performance-controller
+
+
+PUT
+/api/v1/performance/update/{id}
+
+
+POST
+/api/v1/performance/add
+
+
+GET
+/api/v1/performance/get/{id}
+
+
+GET
+/api/v1/performance/get-all
+
+
+DELETE
+/api/v1/performance/delete/{id}
+
+payroll-controller
+
+
+PUT
+/api/v1/payroll/{id}
+
+
+POST
+/api/v1/payroll/add
+
+
+GET
+/api/v1/payroll/get/{id}
+
+
+GET
+/api/v1/payroll/get-department/{id}
+
+
+GET
+/api/v1/payroll/get-all
+
+leave-controller
+
+
+PUT
+/api/v1/leave/update/{id}
+
+
+POST
+/api/v1/leave/add
+
+
+PATCH
+/api/v1/leave/status/{id}
+
+
+GET
+/api/v1/leave/get/{id}
+
+
+GET
+/api/v1/leave/get-department/{id}
+
+
+GET
+/api/v1/leave/get-all
+
+
+DELETE
+/api/v1/leave/delete/{id}
+
+employee-controller
+
+
+PUT
+/api/v1/employee/update/{id}
+
+
+POST
+/api/v1/employee/add
+
+
+GET
+/api/v1/employee/get/{id}
+
+
+GET
+/api/v1/employee/get-all
+
+
+DELETE
+/api/v1/employee/delete/{id}
+
+department-controller
+
+
+PUT
+/api/v1/department/update/{id}
+
+
+POST
+/api/v1/department/add
+
+
+GET
+/api/v1/department/get/{id}
+
+
+GET
+/api/v1/department/get-all
+
+
+DELETE
+/api/v1/department/delete/{id}
+
+auth-controller
+
+
+POST
+/api/v1/auth/signup
+
+
+POST
+/api/v1/auth/signin
+
+attendance-controller
+
+
+POST
+/api/v1/attendance/mark/{id}
+
+
+GET
+/api/v1/attendance/get/{id}
+
+
+GET
+/api/v1/attendance/get-all/{id}
+
+1. Single Dashboard Layout:
+The same dashboard layout is used for all roles, but it displays different content or widgets depending on the logged-in user’s role.
+Common layout components might include:
+Header: User’s profile, notifications, and logout button.
+Sidebar: Links to different sections, like User Profile, Performance, Leave, Reports, etc.
+Main Content Area: Displays role-specific content.
+2. Dynamic Content Based on Role:
+Role Detection: When the user logs in, the system checks the user’s role (Employee, Manager, HR, Admin) and loads content dynamically.
+Conditional Rendering: Use conditional rendering (based on the user role) to control which parts of the dashboard are shown. This ensures that:
+Employees see tasks, personal leave status, attendance, etc.
+Managers see team-related data, task assignments, and approvals.
+HR sees employee performance, payroll, and leave management.
+Admins see everything, including user management, system configuration, and reports.
+For example, the sidebar or top bar may only show specific menu items (e.g., Leave Management for HR, Performance Management for Managers).
+3. Access Control and Permissions:
+Role-based Access Control (RBAC) is implemented to restrict access to sensitive data or actions based on the user’s role.
+Admins have full access to all features, while employees might only have access to their personal data (e.g., personal leave balance, performance reviews).
+API requests and data access are controlled at the backend to ensure users only see the data they are authorized to view.
+Example:
+An Employee might only be able to view their own attendance and performance data.
+A Manager might be able to view and manage the data of employees in their team.
+4. Modular Widgets and Dynamic Data:
+The widgets or cards displayed on the dashboard will change based on the user’s role. For example:
+For Admin: Show user management stats, system health, pending approvals, and performance metrics.
+For HR: Show leave requests, payroll summaries, employee performance, and compliance data.
+For Manager: Show team members' attendance, performance metrics, and task progress.
+For Employee: Show personal leave requests, attendance, performance stats, and notifications.
+Widgets and data are dynamic based on role, which means the same component (e.g., Performance Widget) may display different data depending on whether it’s being viewed by an Employee, Manager, or Admin.
+5. Example of How a Unified Dashboard Works:
+Let’s assume we have a single dashboard layout that can display role-based content dynamically.
+
+Dashboard Layout:
+Header: Contains profile, notifications, and logout button.
+Sidebar: Links like Dashboard, Profile, Performance, Leave, Payroll, Reports.
+Main Section: Depending on the role, this section will display:
+Employee: Personal leave requests, attendance records, performance metrics.
+Manager: Team performance, leave requests, task assignments, team overview.
+HR: Employee records, payroll overview, leave approval requests, performance management.
+Admin: Full access to user management, system configuration, employee data, performance, payroll, leave, and all reports.
+How Role-based Content Rendering Works:
+js
+Copy code
+// React Component Example: Dashboard
+
+const Dashboard = () => {
+  const { user } = useAuthContext(); // Assuming we get user info with role from context or store
+
+  const renderContentBasedOnRole = (role) => {
+    switch (role) {
+      case 'admin':
+        return <AdminDashboardContent />;
+      case 'manager':
+        return <ManagerDashboardContent />;
+      case 'hr':
+        return <HRDashboardContent />;
+      case 'employee':
+        return <EmployeeDashboardContent />;
+      default:
+        return <p>No dashboard available</p>;
+    }
+  };
+
+  return (
+    <div className="dashboard">
+      <Sidebar />
+      <div className="dashboard-content">
+        {renderContentBasedOnRole(user.role)} {/* Render content based on user role */}
+      </div>
+    </div>
+  );
+};
+Sidebar and Top Navbar: These elements can remain static for all roles, but they may show different menu options based on the role. For instance:
+Admin will have User Management, Settings, and Analytics options.
+HR will see Leave Requests, Payroll, and Employee Records.
+Employees and Managers will have limited options.
+Dynamic Content Rendering:
+js
+Copy code
+// For example, in the Manager's dashboard section:
+const ManagerDashboardContent = () => {
+  return (
+    <div className="manager-dashboard">
+      <h2>Team Overview</h2>
+      <PerformanceStats />
+      <LeaveRequests />
+      <TeamTaskAssignments />
+    </div>
+  );
+};
+
+// For Employees:
+const EmployeeDashboardContent = () => {
+  return (
+    <div className="employee-dashboard">
+      <h2>Your Performance</h2>
+      <PerformanceStats />
+      <LeaveBalance />
+      <Attendance />
+    </div>
+  );
+};
+6. Backend API Handling:
+On the backend, the APIs are designed to return role-specific data.
+For example:
+Admin API: Can fetch all employees, all leave requests, all performance reviews, and all payroll data.
+HR API: Can fetch employee performance data, leave requests, and payroll data for employees.
+Manager API: Can fetch only their team’s data for performance, leave requests, and tasks.
+Employee API: Can fetch only their own data related to performance, leave balance, and attendance.
+The backend should handle role-based access control (RBAC) to ensure that users only access data they are authorized to see.
+7. Performance Optimization:
+The frontend should be optimized for conditional rendering, loading only the relevant data for the role, ensuring fast performance and smooth user experience.
+Lazy loading or code splitting can be used to ensure that only the necessary components and data are loaded based on the user’s role.
+In Summary:
+Instead of creating separate dashboards for each role, a single dynamic dashboard is often used in real-world applications. This unified dashboard adapts to the role of the logged-in user by dynamically rendering content and widgets based on the role. This approach helps in:
+
+Efficiency: One dashboard serves all roles, reducing the complexity of maintaining multiple dashboards.
+Consistency: The user interface remains consistent across different roles.
+Scalability: Adding new roles or permissions can be done without rebuilding the entire dashboard.
+By using role-based dynamic rendering, you ensure that each user sees only the content relevant to their role, making the experience personalized and efficient without duplicating the overall structure.
+
+
+

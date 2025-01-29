@@ -1,0 +1,265 @@
+Steps to Build the Dashboard:
+Install Required Dependencies:
+
+We will use Material UI for components and React Router for navigation.
+First, install the necessary packages if you haven’t already:
+bash
+Copy code
+npm install @mui/material @emotion/react @emotion/styled react-router-dom
+Folder Structure:
+
+css
+Copy code
+src/
+├── components/
+│   ├── Sidebar.js
+│   ├── Header.js
+│   └── Dashboard.js
+├── pages/
+│   ├── AdminDashboard.js
+│   ├── ManagerDashboard.js
+│   ├── HRDashboard.js
+│   └── EmployeeDashboard.js
+├── App.js
+├── index.js
+└── auth.js (for handling authentication context)
+Set Up the Authentication Context (auth.js): This will help you manage the logged-in user's state.
+
+js
+Copy code
+// auth.js
+import React, { createContext, useState, useContext } from 'react';
+
+const AuthContext = createContext();
+
+export const useAuthContext = () => useContext(AuthContext);
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState({
+    role: 'employee', // Can be 'admin', 'hr', 'manager', 'employee'
+    name: 'John Doe',
+  });
+
+  return (
+    <AuthContext.Provider value={{ user, setUser }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+Create the Sidebar (Sidebar.js): The sidebar will adjust based on the role.
+
+js
+Copy code
+// Sidebar.js
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Box, List, ListItem, ListItemText } from '@mui/material';
+import { useAuthContext } from '../auth';
+
+const Sidebar = () => {
+  const { user } = useAuthContext();
+
+  return (
+    <Box sx={{ width: 250, padding: 2, backgroundColor: 'lightgrey' }}>
+      <List>
+        <ListItem>
+          <ListItemText primary="Dashboard" />
+        </ListItem>
+        <ListItem>
+          <ListItemText primary="Profile" />
+        </ListItem>
+        {user.role === 'admin' && (
+          <>
+            <ListItem>
+              <ListItemText primary="User Management" />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Reports" />
+            </ListItem>
+          </>
+        )}
+        {user.role === 'hr' && (
+          <>
+            <ListItem>
+              <ListItemText primary="Leave Management" />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Payroll Management" />
+            </ListItem>
+          </>
+        )}
+        {user.role === 'manager' && (
+          <>
+            <ListItem>
+              <ListItemText primary="Team Overview" />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Task Assignments" />
+            </ListItem>
+          </>
+        )}
+        {user.role === 'employee' && (
+          <>
+            <ListItem>
+              <ListItemText primary="Attendance" />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Leave Requests" />
+            </ListItem>
+          </>
+        )}
+      </List>
+    </Box>
+  );
+};
+
+export default Sidebar;
+Create the Header (Header.js): The header will display the user’s name and logout functionality.
+
+js
+Copy code
+// Header.js
+import React from 'react';
+import { AppBar, Toolbar, Typography, Button } from '@mui/material';
+import { useAuthContext } from '../auth';
+
+const Header = () => {
+  const { user, setUser } = useAuthContext();
+
+  const handleLogout = () => {
+    setUser(null); // Simulate logout
+  };
+
+  return (
+    <AppBar position="static">
+      <Toolbar>
+        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          HRMS Dashboard
+        </Typography>
+        <Typography variant="body1" sx={{ marginRight: 2 }}>
+          Welcome, {user.name}
+        </Typography>
+        <Button color="inherit" onClick={handleLogout}>
+          Logout
+        </Button>
+      </Toolbar>
+    </AppBar>
+  );
+};
+
+export default Header;
+Create Role-Based Dashboard Content (Pages):
+
+Each role will have different content in the dashboard:
+
+AdminDashboard.js
+ManagerDashboard.js
+HRDashboard.js
+EmployeeDashboard.js
+For example:
+
+js
+Copy code
+// AdminDashboard.js
+import React from 'react';
+import { Box, Typography } from '@mui/material';
+
+const AdminDashboard = () => {
+  return (
+    <Box sx={{ padding: 3 }}>
+      <Typography variant="h4">Admin Dashboard</Typography>
+      <Typography variant="body1">Manage users, view reports, and more.</Typography>
+    </Box>
+  );
+};
+
+export default AdminDashboard;
+Similarly, create content for ManagerDashboard.js, HRDashboard.js, and EmployeeDashboard.js.
+
+Create the Main Dashboard (Dashboard.js): This component will check the user’s role and display the corresponding content.
+
+js
+Copy code
+// Dashboard.js
+import React from 'react';
+import { Box, Grid } from '@mui/material';
+import Sidebar from './Sidebar';
+import Header from './Header';
+import AdminDashboard from '../pages/AdminDashboard';
+import ManagerDashboard from '../pages/ManagerDashboard';
+import HRDashboard from '../pages/HRDashboard';
+import EmployeeDashboard from '../pages/EmployeeDashboard';
+import { useAuthContext } from '../auth';
+
+const Dashboard = () => {
+  const { user } = useAuthContext();
+
+  const renderDashboard = () => {
+    switch (user.role) {
+      case 'admin':
+        return <AdminDashboard />;
+      case 'manager':
+        return <ManagerDashboard />;
+      case 'hr':
+        return <HRDashboard />;
+      case 'employee':
+        return <EmployeeDashboard />;
+      default:
+        return <div>No Dashboard Available</div>;
+    }
+  };
+
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+      <Header />
+      <Grid container>
+        <Grid item xs={2}>
+          <Sidebar />
+        </Grid>
+        <Grid item xs={10}>
+          {renderDashboard()}
+        </Grid>
+      </Grid>
+    </Box>
+  );
+};
+
+export default Dashboard;
+Set Up the App Component (App.js): Now, integrate everything in your App.js.
+
+js
+Copy code
+// App.js
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { AuthProvider } from './auth';
+import Dashboard from './components/Dashboard';
+
+const App = () => {
+  return (
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          {/* Additional routes for other pages can be added here */}
+        </Routes>
+      </Router>
+    </AuthProvider>
+  );
+};
+
+export default App;
+Run the App: Now you can run the app:
+
+bash
+Copy code
+npm start
+Dashboard Features Recap:
+Role-Based Layout: The layout and content adapt based on the logged-in user's role.
+Shared Components: Common components like the Sidebar and Header are used across different dashboards.
+Dynamic Rendering: The content of the main dashboard area is conditionally rendered based on the role (Admin, HR, Manager, Employee).
+User Authentication: The AuthContext stores the logged-in user and their role.
+This setup allows for a single dynamic dashboard for multiple roles with the content changing based on the logged-in user’s role.
+
+
+

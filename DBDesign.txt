@@ -1,0 +1,30 @@
+Entities and Relationships:
+Employee
+
+Attributes: EmployeeID, FirstName, LastName, Email, Phone, DateOfJoining, Position, Department, Salary, ManagerID (FK to Employee), DateOfBirth, Address
+Attendance
+
+Attributes: AttendanceID, EmployeeID (FK), Date, ClockInTime, ClockOutTime, Status (Present/Absent/Leave)
+Leave
+
+Attributes: LeaveID, EmployeeID (FK), LeaveType (Sick, Casual, etc.), StartDate, EndDate, Status (Approved/Pending/Rejected)
+Payroll
+
+Attributes: PayrollID, EmployeeID (FK), Month, BasicSalary, HRA, Deductions, GrossSalary, NetSalary, Tax
+User
+
+Attributes: UserID, Username, PasswordHash, Role, EmployeeID (FK)
+Role
+
+Attributes: RoleID, RoleName (Admin, HR, Manager, Employee)
+Report
+
+Attributes: ReportID, ReportType (Attendance, Payroll, Leave), GeneratedDate, GeneratedBy (EmployeeID or UserID)
+Relationships:
+A User is associated with one Employee (One-to-One).
+An Employee can have multiple Attendances (One-to-Many).
+An Employee can request multiple Leaves (One-to-Many).
+An Employee has one or more Payroll records (One-to-Many).
+A User can have one Role (One-to-Many from Role to User).
+A User generates many Reports (One-to-Many).
+Reports can be generated for Attendance, Leave, or Payroll.
